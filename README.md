@@ -80,7 +80,7 @@ Auth权限认证是按规则进行认证。
 判断权限方法
 ```
 // 引入类库
-use think\auth\Auth;
+use think\Auth;
 
 // 获取auth实例
 $auth = Auth::instance();
@@ -98,7 +98,7 @@ Auth类也可以对节点进行认证，我们只要将规则名称，定义为�
 ```
 <?php
 use think\Controller;
-use think\auth\Auth;
+use think\Auth;
 class Base extends Controller
 {
     public function _initialize()
