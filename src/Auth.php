@@ -11,7 +11,7 @@
 namespace think;
 
 use think\Db;
-use think\Config;
+use think\facade\Config;
 use think\facade\Session;
 use think\facade\Request;
 use think\Loader;
@@ -231,9 +231,9 @@ class Auth
             return [];
         }
         $map = [
-			['id', 'in', $ids],
-			['type', $type],
-            ['status', 1],
+            'id' => $ids,
+            'type' => $type,
+            'status' => 1,
         ];
         //读取用户组所有权限规则
         $rules = Db::name($this->config['auth_rule'])->where($map)->field('condition,name')->select();
@@ -280,9 +280,9 @@ class Auth
         $ids = explode(',', trim($rules, ','));
         $ids = array_unique($ids);
         $map = [
-			['id', 'in', $ids],
-			['type', $type],
-            ['status', 1],
+            'id' => $ids,
+            'type' => $type,
+            'status' => 1,
         ];
         //读取用户组所有权限规则
         $rules = Db::name($auth_rule)->where($map)->column('title,name,condition');
