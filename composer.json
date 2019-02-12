@@ -1,10 +1,10 @@
 {
     "name": "hjwsky/think-auth",
-    "description": "auth package for thinkphp5",
+    "description": "auth package for thinkphp5.1",
     "homepage": "https://github.com/hjwsky/think-auth",
     "license": "Apache-2.0",
     "minimum-stability": "stable",
-    "version": "1.0.0",
+    "version": "1.0.2",
     "authors": [
         {
             "name": "HJW",
