@@ -1,6 +1,6 @@
 <?php
 // +----------------------------------------------------------------------
-// | ThinkPHP 5 [ WE CAN DO IT JUST THINK IT ]
+// | ThinkPHP 5.1 [ WE CAN DO IT JUST THINK IT ]
 // +----------------------------------------------------------------------
 // | Copyright (c) 2019 http://www.hjwsky.com All rights reserved.
 // +----------------------------------------------------------------------
@@ -27,7 +27,7 @@ use think\Loader;
  * 3，一个用户可以属于多个用户组(think_auth_group_access表 定义了用户所属用户组)。我们需要设置每个用户组拥有哪些规则(think_auth_group 定义了用户组权限)
  *
  * 4，支持规则表达式。
- *      在think_auth_rule 表中定义一条规则时，如果type为1， condition字段就可以定义规则表达式。 如定义{score}>5  and {score}<100  表示用户的分数在5-100之间时这条规则才会通过。
+ *      在think_auth_rule 表中定义一条规则时，condition字段就定义规则表达式。 如定义{score}>5  and {score}<100  表示用户的分数在5-100之间时这条规则才会通过。
  */
 //数据库
 /*
@@ -40,7 +40,7 @@ CREATE TABLE `think_auth_rule` (
     `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,
     `name` char(80) NOT NULL DEFAULT '',
     `title` char(20) NOT NULL DEFAULT '',
-    `type` tinyint(1) NOT NULL DEFAULT '1',
+    `type` char(4) NOT NULL DEFAULT '' COMMENT 'nav,auth',
     `status` tinyint(1) NOT NULL DEFAULT '1',
     `condition` char(100) NOT NULL DEFAULT '',  # 规则附件条件,满足附加条件的规则,才认为是有效的规则
     PRIMARY KEY (`id`),
@@ -126,18 +126,17 @@ class Auth
      * 检查权限
      * @param $name string|array  需要验证的规则列表,支持逗号分隔的权限规则或索引数组
      * @param $uid  int           认证用户的id
-     * @param int $type 认证类型
      * @param string $mode 执行check的模式
      * @param string $relation 如果为 'or' 表示满足任一条规则即通过验证;如果为 'and'则表示需满足所有规则才能通过验证
      * @return bool               通过验证返回true;失败返回false
      */
-    public function check($name, $uid, $type = 1, $mode = 'url', $relation = 'or')
+    public function check($name, $uid, $mode = 'url', $relation = 'or')
     {
         if (!$this->config['auth_on']) {
             return true;
         }
         // 获取用户需要验证的所有有效规则列表
-        $authList = $this->getAuthList($uid, $type);
+        $authList = $this->getAuthList($uid);
         if (is_string($name)) {
             $name = strtolower($name);
             if (strpos($name, ',') !== false) {
@@ -206,18 +205,16 @@ class Auth
     /**
      * 获得权限列表
      * @param integer $uid 用户id
-     * @param integer $type
      * @return array
      */
-    protected function getAuthList($uid, $type)
+    protected function getAuthList($uid)
     {
         static $_authList = []; //保存用户验证通过的权限列表
-        $t = implode(',', (array)$type);
-        if (isset($_authList[$uid . $t])) {
-            return $_authList[$uid . $t];
+        if (isset($_authList[$uid])) {
+            return $_authList[$uid];
         }
-        if (2 == $this->config['auth_type'] && Session::has('_auth_list_' . $uid . $t)) {
-            return Session::get('_auth_list_' . $uid . $t);
+        if (2 == $this->config['auth_type'] && Session::has('_auth_list_' . $uid)) {
+            return Session::get('_auth_list_' . $uid);
         }
         //读取用户所属用户组
         $groups = $this->getGroups($uid);
@@ -232,7 +229,6 @@ class Auth
         }
         $map = [
             'id' => $ids,
-            'type' => $type,
             'status' => 1,
         ];
         //读取用户组所有权限规则
@@ -254,10 +250,10 @@ class Auth
                 $authList[] = strtolower($rule['name']);
             }
         }
-        $_authList[$uid . $t] = $authList;
+        $_authList[$uid] = $authList;
         if (2 == $this->config['auth_type']) {
             //规则列表结果保存到session
-            Session::set('_auth_list_' . $uid . $t, $authList);
+            Session::set('_auth_list_' . $uid, $authList);
         }
 
         return array_unique($authList);
@@ -266,10 +262,9 @@ class Auth
     /**
      * 获取权限组对应的权限列表
      * @param $gid
-     * @param int $type
      * @return array|mixed
      */
-    public function getGroupAuthList($gid, $type = 1)
+    public function getGroupAuthList($gid)
     {
         // 转换表名
         $auth_group = $this->config['auth_group'];
@@ -281,7 +276,6 @@ class Auth
         $ids = array_unique($ids);
         $map = [
             'id' => $ids,
-            'type' => $type,
             'status' => 1,
         ];
         //读取用户组所有权限规则

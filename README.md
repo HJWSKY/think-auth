@@ -2,7 +2,7 @@
 The ThinkPHP5.1 Auth Package
 
 ## 安装
-> composer require HJWSKY/think-auth
+> composer require hjwsky/think-auth
 
 ## 配置
 ### 公共配置
@@ -31,6 +31,7 @@ CREATE TABLE `think_auth_rule` (
     `id` mediumint(8) unsigned NOT NULL AUTO_INCREMENT,  
     `name` char(80) NOT NULL DEFAULT '',  
     `title` char(20) NOT NULL DEFAULT '',  
+	`type` char(4) NOT NULL DEFAULT '' COMMENT 'nav,auth',
     `status` tinyint(1) NOT NULL DEFAULT '1',  
     `condition` char(100) NOT NULL DEFAULT '',  
     PRIMARY KEY (`id`),  
@@ -106,13 +107,13 @@ class Base extends Controller
 		$controller = request()->controller();
 		$action = request()->action();
 		$auth = new Auth();
-		if(!$auth->check($controller . '-' . $action, session('uid'))){
+		if(!$auth->check($controller . '/' . $action, session('uid'))){
 			$this->error('你没有权限访问');
 		}
     }
  }
 ```
-这时候我们可以在数据库中添加的节点规则， 格式为： “控制器名称-方法名称”
+这时候我们可以在数据库中添加的节点规则， 格式为： “控制器名称/方法名称”
 
 Auth 类 还可以多个规则一起认证 如： 
 ```
