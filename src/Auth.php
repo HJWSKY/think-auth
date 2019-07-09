@@ -33,7 +33,7 @@ use think\Loader;
 /*
 -- ----------------------------
 -- think_auth_rule，规则表，
--- id:主键，name：规则唯一标识, title：规则中文名称 status 状态：为1正常，为0禁用，condition：规则表达式，为空表示存在就验证，不为空表示按照条件验证
+-- id:主键，name：规则唯一标识, title：规则中文名称 status 状态：为1正常，为0禁用，type 类型：nav表示后台导航+权限认证，auth表示仅权限认证, condition：规则表达式，为空表示存在就验证，不为空表示按照条件验证
 -- ----------------------------
 DROP TABLE IF EXISTS `think_auth_rule`;
 CREATE TABLE `think_auth_rule` (
@@ -224,7 +224,7 @@ class Auth
         }
         $ids = array_unique($ids);
         if (empty($ids)) {
-            $_authList[$uid . $t] = [];
+            $_authList[$uid] = [];
             return [];
         }
         $map = [
